@@ -29,18 +29,32 @@ def createEvent(title, color, date, startTime, endTime, allDay):
     event = service.events().insert(calendarId="primary",body=event).execute()
 
 
-def populateWeek(date):
-    date_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
+def foodDay(date):
+    # date_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
 
-    weekday = date_obj.weekday()
+    # weekday = date_obj.weekday()
     # Calculate the date of next Monday
-    days_until_monday = (7 - weekday) % 7
-    next_monday = str(date_obj + datetime.timedelta(days=days_until_monday))
-    r = requests.get('https://king.api.flikisdining.com/menu/api/weeks/school/king/menu-type/lunch/' + next_monday.split(' ')[0].split('-')[0] + '/' + next_monday.split(' ')[0].split('-')[1] + '/' + next_monday.split(' ')[0].split('-')[2] + '/')
+    # next_monday = date_obj + datetime.timedelta(days=7-weekday)
+    # active_day = next_monday
+    # r = requests.get('https://king.api.flikisdining.com/menu/api/weeks/school/king/menu-type/lunch/' + str(next_monday).split(' ')[0].split('-')[0] + '/' + str(next_monday).split(' ')[0].split('-')[1] + '/' + str(next_monday).split(' ')[0].split('-')[2] + '/')
+    
+    r = requests.get('https://king.api.flikisdining.com/menu/api/weeks/school/king/menu-type/lunch/' + str(date).split(' ')[0].split('-')[0] + '/' + str(date).split(' ')[0].split('-')[1] + '/' + str(date).split(' ')[0].split('-')[2] + '/')
     r = r.json()
-    for i in range(5):
-        day1Food = r['days'][1+i]['menu_items'][3]['food']['name']
-        print(day1Food)
+
+    date_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
+    weekday = date_obj.weekday()
+    weekday = (weekday+1)%7
+
+    if len(r['days']) > 1 and len(r['days'][weekday]['menu_items']) > 3:
+        active_food = r['days'][weekday]['menu_items'][3]['food']['name'] 
+        createEvent(active_food,6,str(date).split(' ')[0],'12:00','12:50',False)
+        # active_day = active_day + datetime.timedelta(days=1)
+
+def populateMonth(month):
+    days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    
+    for i in range(days_in_month[month-1]):
+        foodDay(str(datetime.datetime.now().year) + '-' + str(month) + '-' + str(i+1))
 
 def main():
     creds = None
@@ -51,7 +65,7 @@ def main():
         if creds and creds.expired and creds.refresh_token:
            creds.refresh(Request())
         else:
-           flow = InstalledAppFlow.from_client_secrets_file("Weather-on-Calendar/credentials.json", SCOPES)
+           flow = InstalledAppFlow.from_client_secrets_file("Lunch-Menu-Calendar\credentials.json", SCOPES)
            creds = flow.run_local_server(port=0)
         with open("token.json", "w") as token:
             token.write(creds.to_json())
@@ -64,5 +78,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # createEvent('Test Event for septemeber 14', 6,'2024-9-15', '10:30', '11:00', True)
-    populateWeek('2024-9-7')
+    populateMonth(datetime.datetime.now().month)
+    print('done')
