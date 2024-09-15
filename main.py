@@ -1,6 +1,9 @@
 import os.path
 import datetime
 import requests
+import tkinter as tk
+from tkinter import *
+from tkcalendar import Calendar
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -30,6 +33,7 @@ def createEvent(title, color, date, startTime, endTime, allDay):
 
 
 def foodDay(date):
+
     # date_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
 
     # weekday = date_obj.weekday()
@@ -50,13 +54,13 @@ def foodDay(date):
         createEvent(active_food,6,str(date).split(' ')[0],'12:00','12:50',False)
         # active_day = active_day + datetime.timedelta(days=1)
 
-def populateMonth(month):
+def populateMonth(month, day):
     days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     
-    for i in range(days_in_month[month-1]):
+    for i in range(day-1, days_in_month[month-1]):
         foodDay(str(datetime.datetime.now().year) + '-' + str(month) + '-' + str(i+1))
 
-def main():
+def createToken():
     creds = None
 
     if os.path.exists("token.json"):
@@ -76,7 +80,31 @@ def main():
     except HttpError as error:
         print(f"An error occurred: {error}")
 
+def buildWindow():
+    root = Tk()
+    root.geometry('350x300')
+    root.title('Lunch Menu on Calendar')
+    root.resizable(width=False, height=False)
+
+    def buildFromDate():
+        date = cal.get_date()
+        populateMonth(int(date.split('/')[0]), int(date.split('/')[1]))
+        root.destroy()
+
+    description1 = Label(root, text='Select a date, the program will then go from that date until ')
+    description2 = Label(root, text='the end of the month and add the lunch to each day.')
+    cal = Calendar(root, selectmode='day', year=datetime.datetime.now().year, month=datetime.datetime.now().month, day=1)
+    cal.pack(pady=20)
+    button = tk.Button(root, text="Populate Days", command=buildFromDate)
+    button.pack()
+    description1.pack()
+    description2.pack()
+    root.mainloop()
+
+
+def main():
+    createToken()
+    buildWindow()
+
 if __name__ == '__main__':
     main()
-    populateMonth(datetime.datetime.now().month)
-    print('done')
