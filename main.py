@@ -13,7 +13,7 @@ from googleapiclient.errors import HttpError
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
-def createEvent(title, color, date, startTime, endTime, allDay):
+def createEvent(title, color, date, startTime, endTime, allDay=False, allowDuplicates = True):
 
     event = {
         "summary": title,
@@ -29,8 +29,21 @@ def createEvent(title, color, date, startTime, endTime, allDay):
             "timeZone": 'America/New_York'
             }
     }
-    event = service.events().insert(calendarId="primary",body=event).execute()
+    if allowDuplicates == False:
+        existing_events = getEvents(date)
+        event_exists = any(existing_event['summary'] == title for existing_event in existing_events)
 
+        if not event_exists:
+            event = service.events().insert(calendarId="primary",body=event).execute()
+        else:
+            print(f'Event "{title}" on {date} already exists')
+    else: 
+        event = service.events().insert(calendarId="primary",body=event).execute()
+
+def getEvents(date):
+    events_result = (service.events().list(calendarId="primary", timeMin=date + 'T00:00:00Z', timeMax=date + 'T23:59:59Z').execute())
+    events = events_result.get('items', [])
+    return events
 
 def foodDay(date):
 
@@ -51,7 +64,7 @@ def foodDay(date):
 
     if len(r['days']) > 1 and len(r['days'][weekday]['menu_items']) > 3:
         active_food = r['days'][weekday]['menu_items'][3]['food']['name'] 
-        createEvent(active_food,6,str(date).split(' ')[0],'12:00','12:50',False)
+        createEvent(active_food,6,str(date).split(' ')[0],'12:00','12:50', allowDuplicates=False)
         # active_day = active_day + datetime.timedelta(days=1)
 
 def populateMonth(month, day):
