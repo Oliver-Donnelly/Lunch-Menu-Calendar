@@ -46,15 +46,6 @@ def getEvents(date):
     return events
 
 def foodDay(date):
-
-    # date_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
-
-    # weekday = date_obj.weekday()
-    # Calculate the date of next Monday
-    # next_monday = date_obj + datetime.timedelta(days=7-weekday)
-    # active_day = next_monday
-    # r = requests.get('https://king.api.flikisdining.com/menu/api/weeks/school/king/menu-type/lunch/' + str(next_monday).split(' ')[0].split('-')[0] + '/' + str(next_monday).split(' ')[0].split('-')[1] + '/' + str(next_monday).split(' ')[0].split('-')[2] + '/')
-    
     r = requests.get('https://king.api.flikisdining.com/menu/api/weeks/school/king/menu-type/lunch/' + str(date).split(' ')[0].split('-')[0] + '/' + str(date).split(' ')[0].split('-')[1] + '/' + str(date).split(' ')[0].split('-')[2] + '/')
     r = r.json()
 
@@ -65,7 +56,6 @@ def foodDay(date):
     if len(r['days']) > 1 and len(r['days'][weekday]['menu_items']) > 3:
         active_food = r['days'][weekday]['menu_items'][3]['food']['name'] 
         createEvent(active_food,6,str(date).split(' ')[0],'12:00','12:50', allowDuplicates=False)
-        # active_day = active_day + datetime.timedelta(days=1)
 
 def populateMonth(month, day):
     days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -82,7 +72,7 @@ def createToken():
         if creds and creds.expired and creds.refresh_token:
            creds.refresh(Request())
         else:
-           flow = InstalledAppFlow.from_client_secrets_file("Lunch-Menu-Calendar\credentials.json", SCOPES)
+           flow = InstalledAppFlow.from_client_secrets_file("Lunch-Menu-Calendar/credentials.json", SCOPES)
            creds = flow.run_local_server(port=0)
         with open("token.json", "w") as token:
             token.write(creds.to_json())
