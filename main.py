@@ -32,16 +32,25 @@ def createEvent(title, color, date, startTime, endTime, allDay=False, allowDupli
     if allowDuplicates == False:
         existing_events = getEvents(date)
         event_exists = any(existing_event['summary'] == title for existing_event in existing_events)
-
+    
+# c5b53916000c482b5e3324db4da586a63daa9570c4664a601601163f373293e3@group.calendar.google.com IS THE ID FOR THE LUNCH CALENDAR I CREATED
+# MAIN CALENDAR IS 'primary'
+# GET THE ID BY GOING TO THE CALENDAR SETTINGS AND THEN 'Integrate'
         if not event_exists:
-            event = service.events().insert(calendarId="primary",body=event).execute()
+            event = service.events().insert(calendarId="c5b53916000c482b5e3324db4da586a63daa9570c4664a601601163f373293e3@group.calendar.google.com",body=event).execute()
         else:
             print(f'Event "{title}" on {date} already exists')
     else: 
-        event = service.events().insert(calendarId="primary",body=event).execute()
+# c5b53916000c482b5e3324db4da586a63daa9570c4664a601601163f373293e3@group.calendar.google.com IS THE ID FOR THE LUNCH CALENDAR I CREATED
+# MAIN CALENDAR IS 'primary'
+# GET THE ID BY GOING TO THE CALENDAR SETTINGS AND THEN 'Integrate'
+        event = service.events().insert(calendarId="c5b53916000c482b5e3324db4da586a63daa9570c4664a601601163f373293e3@group.calendar.google.com",body=event).execute()
 
 def getEvents(date):
-    events_result = (service.events().list(calendarId="primary", timeMin=date + 'T00:00:00Z', timeMax=date + 'T23:59:59Z').execute())
+# c5b53916000c482b5e3324db4da586a63daa9570c4664a601601163f373293e3@group.calendar.google.com IS THE ID FOR THE LUNCH CALENDAR I CREATED
+# MAIN CALENDAR IS 'primary'
+# GET THE ID BY GOING TO THE CALENDAR SETTINGS AND THEN 'Integrate'
+    events_result = (service.events().list(calendarId="c5b53916000c482b5e3324db4da586a63daa9570c4664a601601163f373293e3@group.calendar.google.com", timeMin=date + 'T00:00:00Z', timeMax=date + 'T23:59:59Z').execute())
     events = events_result.get('items', [])
     return events
 
