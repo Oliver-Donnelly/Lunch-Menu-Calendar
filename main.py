@@ -13,7 +13,7 @@ from googleapiclient.errors import HttpError
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
-def createEvent(title, color, date, startTime, endTime, allDay=False, allowDuplicates = True):
+def createEvent(title, color, date, startTime, endTime, allDay=False, allowDuplicates = True, notificationMinutes = 10):
 
     event = {
         "summary": title,
@@ -27,7 +27,13 @@ def createEvent(title, color, date, startTime, endTime, allDay=False, allowDupli
             "date": date if allDay else None,
             "dateTime": None if allDay else date + 'T' + endTime + ':00',
             "timeZone": 'America/New_York'
-            }
+            },
+        "reminders": {
+            "useDefault": False,
+            "overrides": [
+                {"method": "popup", "minutes": notificationMinutes}
+            ]
+        }
     }
     if allowDuplicates == False:
         existing_events = getEvents(date)
