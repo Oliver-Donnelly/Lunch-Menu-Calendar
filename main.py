@@ -122,7 +122,6 @@ def buildWindow():
 
 def main():
     createToken()
-    populateMonth(3,1)
     buildWindow()
     
 
