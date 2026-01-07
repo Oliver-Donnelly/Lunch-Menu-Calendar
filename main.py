@@ -122,9 +122,10 @@ def buildWindow():
 
 def main():
     createToken()
-    buildWindow()
+    populateMonth(1,1)
+    # buildWindow()
     
 
 if __name__ == '__main__':
-    
+
     main()
